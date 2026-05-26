@@ -14,6 +14,7 @@ public class DeerEntityRenderer extends MobRenderer<DeerEntity, DeerEntityModel<
     public DeerEntityRenderer(EntityRendererProvider.Context context)
     {
         super(context, new DeerEntityModel<>(context.bakeLayer(ModModelLayers.DEER)), BASE_SHADOW_RADIUS);
+        addLayer(new DeerEntityLayer(this)); // [Cecil] Add nose overlay
     }
 
     @Override

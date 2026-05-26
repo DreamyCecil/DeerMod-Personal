@@ -18,7 +18,7 @@ public class DeerEntityModel<D extends DeerEntity> extends AgeableHierarchicalMo
     private final ModelPart root;
     private final ModelPart neck;
     private final ModelPart head;
-    private final ModelPart redNose;
+    //private final ModelPart redNose;
     private final ModelPart antlers;
     private final ModelPart body;
     private final ModelPart rightFrontLeg;
@@ -33,7 +33,7 @@ public class DeerEntityModel<D extends DeerEntity> extends AgeableHierarchicalMo
         this.root = root;
         this.neck = root.getChild("neck");
         this.head = this.neck.getChild("head");
-        this.redNose = this.head.getChild("red_nose");
+        //this.redNose = this.head.getChild("red_nose");
         this.antlers = this.head.getChild("antlers");
         this.body = root.getChild("body");
         this.rightFrontLeg = this.body.getChild("right_front_leg");
@@ -58,8 +58,8 @@ public class DeerEntityModel<D extends DeerEntity> extends AgeableHierarchicalMo
         PartDefinition nose = head.addOrReplaceChild("nose", CubeListBuilder.create()
             .texOffs(0, 54).addBox(-1.0F, -2.0F, -2.0F, 2.0F, 2.0F, 1.0F), PartPose.offset(0.0F, 2.0F, -5.0F));
 
-        PartDefinition red_nose = head.addOrReplaceChild("red_nose", CubeListBuilder.create()
-            .texOffs(0, 57).addBox(-1.0F, -2.0F, -2.0F, 2.0F, 2.0F, 1.0F, new CubeDeformation(0.01f)), PartPose.offset(0.0F, 2.0F, -5.0F));
+        /*PartDefinition red_nose = head.addOrReplaceChild("red_nose", CubeListBuilder.create()
+            .texOffs(0, 57).addBox(-1.0F, -2.0F, -2.0F, 2.0F, 2.0F, 1.0F, new CubeDeformation(0.01f)), PartPose.offset(0.0F, 2.0F, -5.0F));*/
 
         PartDefinition right_ear = head.addOrReplaceChild("right_ear", CubeListBuilder.create(), PartPose.offset(-4.0F, -2.0F, 1.0F));
 
@@ -135,7 +135,7 @@ public class DeerEntityModel<D extends DeerEntity> extends AgeableHierarchicalMo
         rightFrontLeg.xRot = Mth.cos(limbAngle * 0.6662F + (float) Math.PI) * 1.4F * limbDistance;
         leftFrontLeg.xRot = Mth.cos(limbAngle * 0.6662F) * 1.4F * limbDistance;
 
-        redNose.visible = deer.hasRedNose();
+        //redNose.visible = deer.hasRedNose();
         antlers.visible = !deer.isSheared() && !deer.isBaby();
         saddle.visible = deer.isSaddled();
 

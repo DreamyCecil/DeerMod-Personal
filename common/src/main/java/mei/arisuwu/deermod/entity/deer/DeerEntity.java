@@ -21,6 +21,8 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.DismountHelper;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -73,7 +75,7 @@ public class DeerEntity extends Animal implements Shearable, ItemSteerable, Sadd
     protected void defineSynchedData(SynchedEntityData.Builder builder)
     {
         super.defineSynchedData(builder);
-        builder.define(RED_NOSE, false);
+        builder.define(NOSE_COLOR, DyeColor.BLACK.getId());
         builder.define(SHEARED, false);
         builder.define(SADDLED, false);
         builder.define(BOOST_TIME, 0);
@@ -92,7 +94,7 @@ public class DeerEntity extends Animal implements Shearable, ItemSteerable, Sadd
     public void addAdditionalSaveData(CompoundTag nbt)
     {
         super.addAdditionalSaveData(nbt);
-        nbt.putBoolean("RedNose", hasRedNose());
+        nbt.putInt("NoseColor", getNoseColor().getId());
         nbt.putBoolean("Sheared", isSheared());
         nbt.putBoolean("Saddled", isSaddled());
     }
@@ -101,7 +103,7 @@ public class DeerEntity extends Animal implements Shearable, ItemSteerable, Sadd
     public void readAdditionalSaveData(CompoundTag nbt)
     {
         super.readAdditionalSaveData(nbt);
-        setRedNose(nbt.getBoolean("RedNose"));
+        setNoseColor(DyeColor.byId(nbt.getInt("NoseColor")));
         setSheared(nbt.getBoolean("Sheared"));
         setSaddled(nbt.getBoolean("Saddled"));
     }
@@ -139,11 +141,12 @@ public class DeerEntity extends Animal implements Shearable, ItemSteerable, Sadd
     {
         ItemStack itemStack = player.getItemInHand(hand);
 
-        if (itemStack.is(Items.RED_DYE) || itemStack.is(Items.BLACK_DYE))
+        // [Cecil] Change nose color using a dye item
+        if (itemStack.getItem() instanceof DyeItem dyeItem && getNoseColor() != dyeItem.getDyeColor())
         {
             if (level() instanceof ServerLevel serverWorld)
             {
-                setRedNose(itemStack.is(Items.RED_DYE));
+                setNoseColor(dyeItem.getDyeColor());
                 itemStack.consume(1, player);
                 return InteractionResult.SUCCESS;
             }
@@ -187,19 +190,15 @@ public class DeerEntity extends Animal implements Shearable, ItemSteerable, Sadd
         return super.mobInteract(player, hand);
     }
 
+    // [Cecil] Replaced red nose boolean mechanic with dye colors
+    private static final EntityDataAccessor<Integer> NOSE_COLOR = SynchedEntityData.defineId(DeerEntity.class, EntityDataSerializers.INT);
 
-    // RED NOSE MECHANICS
-
-    private static final EntityDataAccessor<Boolean> RED_NOSE = SynchedEntityData.defineId(DeerEntity.class, EntityDataSerializers.BOOLEAN);
-
-    public boolean hasRedNose()
-    {
-        return entityData.get(RED_NOSE);
+    public DyeColor getNoseColor() {
+        return DyeColor.byId(entityData.get(NOSE_COLOR));
     }
 
-    protected void setRedNose(boolean b)
-    {
-        entityData.set(RED_NOSE, b);
+    private void setNoseColor(DyeColor color) {
+        entityData.set(NOSE_COLOR, color.getId());
     }
 
 
