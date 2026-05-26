@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -26,6 +27,7 @@ import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -69,6 +71,7 @@ public class DeerEntity extends Animal implements Shearable, ItemSteerable, Sadd
         goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 8.0f, 1));
         goalSelector.addGoal(6, new RandomLookAroundGoal(this));
         goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1));
+        goalSelector.addGoal(8, new FollowParentGoal(this, 1)); // [Cecil]
     }
 
     @Override
@@ -133,7 +136,28 @@ public class DeerEntity extends Animal implements Shearable, ItemSteerable, Sadd
     @Override
     public @Nullable AgeableMob getBreedOffspring(ServerLevel world, AgeableMob entity)
     {
-        return ModEntities.DEER.get().create(world);
+        DeerEntity baby = ModEntities.DEER.get().create(world);
+        if (baby == null) return null;
+
+        // [Cecil] Copy nose color from either parent
+        if (entity instanceof DeerEntity deerEntity) {
+            baby.setNoseColor(random.nextBoolean() ? getNoseColor() : deerEntity.getNoseColor());
+        }
+        return baby;
+    }
+
+    // [Cecil] Setup the deer after spawning + spawn babies at random
+    @Override
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficultyInstance, MobSpawnType mobSpawnType, SpawnGroupData spawnGroupData) {
+        spawnGroupData = super.finalizeSpawn(levelAccessor, difficultyInstance, mobSpawnType, spawnGroupData);
+
+        // Spawn as babies 20% of the time
+        if (random.nextFloat() <= 0.2F) {
+            setBaby(true);
+        }
+
+        setNoseColor(DyeColor.BLACK); // Default nose color
+        return spawnGroupData;
     }
 
     @Override
