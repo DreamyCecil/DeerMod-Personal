@@ -8,10 +8,12 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -108,6 +110,22 @@ public class DeerEntity extends Animal implements Shearable, ItemSteerable, Sadd
     public boolean isFood(ItemStack stack)
     {
         return stack.is(ModTags.DEER_FOOD);
+    }
+
+    // [Cecil] Deer sounds
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return isBaby() ? DeerSounds.BABY_DEER_AMBIENT : DeerSounds.DEER_AMBIENT;
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource damageSource) {
+        return isBaby() ? DeerSounds.BABY_DEER_HURT : DeerSounds.DEER_HURT;
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return isBaby() ? DeerSounds.BABY_DEER_DEATH : DeerSounds.DEER_DEATH;
     }
 
     @Override
@@ -340,9 +358,15 @@ public class DeerEntity extends Animal implements Shearable, ItemSteerable, Sadd
     }
 
     @Override
-    public boolean boost()
-    {
-        return saddledComponent.boost(getRandom());
+    public boolean boost() {
+        boolean bBoosted = saddledComponent.boost(getRandom());
+
+        // [Cecil] Play speed up sound if just boosted
+        if (bBoosted) {
+            playSound(DeerSounds.DEER_BOOST, getSoundVolume(), getVoicePitch());
+        }
+
+        return bBoosted;
     }
 
     @Override
